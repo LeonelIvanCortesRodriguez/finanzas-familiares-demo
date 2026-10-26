@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="A fictional family-finance control workflow with explainable categorization, reconciliation, and review states.">
   <title>Finanzas Familiares Demo · Control desk</title>
+  <link rel="icon" href="data:,">
   <link rel="stylesheet" href="styles.css">
   <script type="module" src="app.js"></script>
 </head>
@@ -25,16 +26,22 @@
     </aside>
 
     <main id="main">
-      <div class="utility-bar"><span>OPERATIONS / FINANCIAL CONTROLS</span><span id="loadedState" role="status">Waiting for sample import</span></div>
+      <div class="utility-bar"><span>Fictional household finance / control review</span><span id="loadedState" role="status">Loading sample controls</span></div>
       <section class="hero" id="overview" aria-labelledby="hero-title">
-        <div class="hero-copy"><p class="eyebrow">A visible path from input to decision</p><h1 id="hero-title">Know what the numbers can support.</h1>
-          <p class="hero-intro">Import a fictional statement pack, inspect what was accepted, and see where reconciliation or categorization needs a person.</p>
-          <div class="hero-meta"><span><i></i> Fixed seed <strong>20261026</strong></span><span><i></i> Period <strong>Jan–Mar 2026</strong></span><span><i></i> Scope <strong>Demo only</strong></span></div>
+        <div class="hero-copy"><p class="eyebrow">Import decision / synthetic sample</p><h1 id="hero-title">Check the import before using its figures.</h1>
+          <p class="hero-intro" id="heroConclusion">Loading the fictional statement pack and its reconciliation controls.</p>
+          <div class="hero-micro-flow" id="heroMicroFlow" role="img" aria-label="Row acceptance and statement reconciliation at a glance"></div>
+          <p class="scope-note">Separate public illustration. Fictional data only; no bank connection or private-project records.</p>
         </div>
-        <div class="hero-actions"><div class="action-label">SYNTHETIC RUN / 01</div><button id="runImport" class="primary-button" type="button">Run synthetic import <span aria-hidden="true">↗</span></button>
-          <button id="exportJson" class="secondary-button" type="button" disabled>Export audit packet <span aria-hidden="true">↓</span></button>
-          <p>Works locally. No login, cloud service, or real financial data.</p>
+        <div class="hero-actions" id="heroState"><p class="action-label">Decision state</p><strong id="holdHeadline">Checking reconciliation</strong>
+          <p id="holdExplanation">The held statement and review action will appear after the sample loads.</p>
+          <a class="primary-button" href="#controls">Review held statement <span aria-hidden="true">→</span></a>
+          <div class="minor-actions"><button id="runImport" class="secondary-button" type="button">Re-run sample import</button><button id="exportJson" class="secondary-button" type="button" disabled>Export sample audit trail</button></div>
         </div>
+      </section>
+
+      <section class="decision-flow" aria-labelledby="flow-title"><div class="section-heading"><div><h2 id="flow-title">What cleared, and what is held</h2></div><p>Counts and amounts are derived from the committed fictional inputs.</p></div>
+        <figure id="importFlow" aria-label="Fictional import disposition and statement reconciliation"><figcaption>Loading the validated import flow.</figcaption></figure>
       </section>
 
       <section class="section metrics-section" aria-labelledby="metrics-title"><div class="section-heading"><div><p class="eyebrow">01 / Portfolio pulse</p><h2 id="metrics-title">What cleared the controls</h2></div><p>All figures below are calculated from accepted synthetic rows.</p></div><div class="metrics" id="metrics"><p class="empty">Run the sample import to calculate the dashboard.</p></div></section>
@@ -50,13 +57,13 @@
       </section>
 
       <section class="section" id="ledger" aria-labelledby="ledger-title"><div class="section-heading"><div><p class="eyebrow">05 / Accepted source</p><h2 id="ledger-title">Trace the ledger</h2></div><p id="ledgerCount">No accepted records yet.</p></div>
-        <div class="ledger-controls"><label for="ledgerSearch">Find a sample row<input id="ledgerSearch" type="search" placeholder="ID, label, or statement" disabled></label><label for="categoryFilter">Category<select id="categoryFilter" disabled><option value="all">All categories</option></select></label><span class="control-tip">Category is derived by rule; unmatched rows are held for review.</span></div>
+        <div class="ledger-controls"><label for="ledgerSearch">Find a sample row<input id="ledgerSearch" type="search" placeholder="ID, label, or statement" disabled></label><label for="categoryFilter">Category<select id="categoryFilter" disabled><option value="all">All categories</option></select></label><span class="control-tip">Unmatched categories still count as accepted rows. A statement HOLD flags its closing balance; it does not remove accepted rows from the figures.</span></div>
         <div class="panel ledger-panel"><table><thead><tr><th>Source ID</th><th>Date</th><th>Fictional label</th><th>Statement</th><th>Direction</th><th>Amount</th><th>Category / basis</th></tr></thead><tbody id="ledgerRows"><tr><td colspan="7" class="empty-cell">No import yet.</td></tr></tbody></table></div>
       </section>
 
       <section class="section evidence-section" id="evidence" aria-labelledby="evidence-title"><div class="section-heading"><div><p class="eyebrow">06 / Evidence boundary</p><h2 id="evidence-title">What each state means</h2></div><p>The audit packet keeps the states in separate fields.</p></div>
         <div class="evidence-grid"><div class="evidence-card"><span class="state-pill state-source">Source</span><h3>Imported facts</h3><p>Generated CSV rows, opening and declared closing balances, budget limits, and fixture identity. These are fictional inputs, not observed household data.</p></div><div class="evidence-card"><span class="state-pill state-derived">Derived</span><h3>Recomputed results</h3><p>Normalized categories, accepted movement, monthly cash flow, budget variance, and reconciliation differences. Each has a rule or formula.</p></div><div class="evidence-card"><span class="state-pill state-review">Manual review</span><h3>Unresolved items</h3><p>Malformed rows, duplicate submissions, unknown categories, and closing differences stay visible. The demo does not invent a correction.</p></div></div>
-        <div class="audit-panel"><div><p class="eyebrow">RECENT PROCESS TRACE</p><h3>Audit trail sample</h3><p>Row IDs and reason codes only. The complete trace is in the JSON export.</p></div><ol id="auditRows"><li class="empty">Run the synthetic import to see process events.</li></ol></div>
+        <div class="audit-panel"><div><h3>Sample audit trail</h3><p>Row IDs and reason codes are included in the export. It does not carry every original rejected source row.</p></div><ol id="auditRows"><li class="empty">Run the synthetic import to see process events.</li></ol></div>
       </section>
       <footer><span>Finanzas Familiares Demo · fictional data only</span><span>Local-first control example, not financial advice or a production system.</span></footer>
     </main>

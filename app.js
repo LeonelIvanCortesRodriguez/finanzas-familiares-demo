@@ -21,6 +21,48 @@ function renderMetrics(result) {
   ].join("");
 }
 
+function renderDecision(result) {
+  const { sourceRows, acceptedRows } = result.derived.metrics;
+  const exceptions = result.manualReview.exceptions;
+  const duplicates = exceptions.filter((item) => item.kind === "DUPLICATE").length;
+  const invalid = exceptions.filter((item) => item.kind === "VALIDATION").length;
+  const categoryReview = exceptions.filter((item) => item.kind === "CATEGORY").length;
+  const statements = result.derived.reconciliation;
+  const reconciled = statements.filter((item) => item.state === "PASS").length;
+  const held = result.manualReview.heldStatements;
+  const primaryHold = held[0];
+  const difference = primaryHold ? money(Math.abs(primaryHold.differenceCents)) : "";
+
+  $("#hero-title").textContent = primaryHold
+    ? `One statement is held for ${difference}.`
+    : "All sample statements reconcile.";
+  $("#heroConclusion").textContent = `${sourceRows} fictional rows → ${acceptedRows} accepted; ${duplicates} duplicates and ${invalid} invalid row excluded. Accepted rows feed the figures, including the held statement.`;
+  $("#holdHeadline").textContent = primaryHold
+    ? `${primaryHold.statementId}: closing balance needs review`
+    : "No statement reconciliation hold";
+  $("#holdExplanation").textContent = primaryHold
+    ? `${difference} separates declared and calculated closing. Check source closing and row evidence before resolving the HOLD; no automatic correction is made.`
+    : "The sample statements match their calculated closings. Review row-level category and validation items separately.";
+  $("#heroState").dataset.state = primaryHold ? "hold" : "pass";
+
+  $("#heroMicroFlow").innerHTML = `<div><span>Rows</span><strong>${sourceRows} → ${acceptedRows}</strong><small>accepted into figures</small></div>
+    <div><span>Statements</span><strong>${statements.length} → ${held.length}</strong><small>${held.length === 1 ? "closing HOLD" : "closing HOLDs"}</small></div>`;
+  $("#heroMicroFlow").setAttribute("aria-label", `${sourceRows} source rows to ${acceptedRows} accepted; ${statements.length} statements checked, ${held.length} closing holds`);
+
+  $("#importFlow").innerHTML = `<figcaption>Two control gates, ${held.length} unresolved closing ${held.length === 1 ? "balance" : "balances"}</figcaption>
+    <div class="flow-track" aria-label="Row acceptance">
+      <div class="flow-node"><strong>${sourceRows}</strong><span>source rows</span></div><span class="flow-arrow" aria-hidden="true">→</span>
+      <div class="flow-node accepted"><strong>${acceptedRows}</strong><span>accepted into figures</span></div>
+      <div class="flow-split"><span>${duplicates} duplicates excluded</span><span>${invalid} invalid excluded</span></div>
+    </div>
+    <div class="flow-track" aria-label="Statement reconciliation">
+      <div class="flow-node"><strong>${statements.length}</strong><span>statements checked</span></div><span class="flow-arrow" aria-hidden="true">→</span>
+      <div class="flow-node accepted"><strong>${reconciled}</strong><span>reconciled</span></div>
+      <div class="flow-node ${held.length ? "held" : "accepted"}"><strong>${held.length}</strong><span>${held.length ? `HOLD · ${escape(difference)}` : "held"}</span></div>
+    </div>
+    <p class="flow-note">${categoryReview} accepted row${categoryReview === 1 ? " has" : "s have"} an unresolved category. A statement HOLD is a separate balance review and does not remove its accepted rows from calculated figures.</p>`;
+}
+
 function renderCashflow(result) {
   const max = Math.max(...result.derived.cashflow.flatMap((x) => [x.inflowCents, x.outflowCents]));
   $("#cashflowBars").innerHTML = result.derived.cashflow.map((item) => {
@@ -65,7 +107,7 @@ async function runImport() {
     if (!csvResponse.ok || !controlResponse.ok) throw new Error("Sample files were not found. Run npm run generate.");
     const csv = await csvResponse.text(), controls = await controlResponse.json();
     current = processImport(csv, controls);
-    renderMetrics(current); renderCashflow(current); renderBudget(current); renderControls(current); renderAudit(current);
+    renderDecision(current); renderMetrics(current); renderCashflow(current); renderBudget(current); renderControls(current); renderAudit(current);
     const categories = [...new Set(current.accepted.map((item) => item.category))].sort();
     $("#categoryFilter").innerHTML = `<option value="all">All categories</option>` + categories.map((item) => `<option value="${escape(item)}">${escape(item)}</option>`).join("");
     $("#ledgerSearch").disabled = false; $("#categoryFilter").disabled = false; $("#exportJson").disabled = false;
@@ -73,6 +115,11 @@ async function runImport() {
     $("#loadedState").textContent = `${current.derived.metrics.acceptedRows} accepted · ${current.derived.metrics.reviewItems} review items`;
   } catch (error) {
     $("#loadedState").textContent = "Import stopped";
+    $("#hero-title").textContent = "The fictional import could not be verified.";
+    $("#heroConclusion").textContent = escape(error.message);
+    $("#holdHeadline").textContent = "No decision available";
+    $("#holdExplanation").textContent = "Restore the committed sample files, then rerun the import.";
+    $("#importFlow").innerHTML = `<figcaption role="alert">Import flow unavailable: ${escape(error.message)}</figcaption>`;
     $("#metrics").innerHTML = `<p class="empty" role="alert">${escape(error.message)}</p>`;
   } finally { $("#runImport").disabled = false; }
 }
