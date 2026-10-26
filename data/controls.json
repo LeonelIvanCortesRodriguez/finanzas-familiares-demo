@@ -1,0 +1,27 @@
+{
+  "synthetic": true,
+  "seed": 20261026,
+  "period": "2026-01 to 2026-03 (fictional)",
+  "sourceLabel": "Generated sample CSV and statement controls",
+  "statements": [
+    {
+      "id": "STATEMENT-01",
+      "openingCents": 250000,
+      "closingCents": 482829
+    },
+    {
+      "id": "STATEMENT-02",
+      "openingCents": 180000,
+      "closingCents": 379678
+    }
+  ],
+  "budgetsCents": {
+    "Housing": 185000,
+    "Groceries": 52000,
+    "Mobility": 18000,
+    "Utilities": 18000,
+    "Health": 16500,
+    "Dining": 11500
+  },
+  "fixtureNote": "STATEMENT-02 has an intentional 7.31 synthetic discrepancy for manual review."
+}
