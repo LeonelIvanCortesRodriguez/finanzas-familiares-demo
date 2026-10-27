@@ -4,45 +4,75 @@
 
 product
 
+## Product promise
+
+Turns a messy household bank export into figures you can rely on, and keeps every duplicate, bad row, and unbalanced statement in front of a person until it is resolved.
+
 ## Users
 
-Operations leaders and reviewers evaluating whether a household-finance import is usable. A hiring director also needs to understand the control philosophy quickly. All visible records are fictional.
+A household member who keeps the family's books and wants to know whether this month's numbers can be trusted. Also the operations or finance leader who reviews Leonel's work and asks a sharper question: does this system know the difference between a figure it calculated and a figure someone confirmed? All visible data is fictional.
 
-## Product Purpose
+## Problem
 
-Make import acceptance, statement reconciliation, category review, and source-to-output explanation visible in one synthetic control desk. The first action is to inspect the held statement and decide what source evidence is needed to resolve its MX$7.31 mismatch.
+A finance dashboard looks settled even when the import underneath it contains repeated rows, a malformed amount, or a statement whose closing balance does not match. Most tools either hide those problems or quietly "fix" them. Either way the person reading the totals cannot tell what is safe to use.
 
-## Five-second question
+## How the workflow runs
 
-Which figures are usable, what is held, why, and who must review it next?
+`source records → validation and reconciliation → exceptions → usable financial view`
 
-## First decision
+On the bundled fictional pack: 52 source rows arrive. 49 are accepted, 2 duplicates and 1 malformed amount are excluded. Of two statements, one reconciles and one is held for a MX$7.31 difference. One accepted row still needs a category from a person. Those numbers must always be read from `processImport` output, never typed by hand.
 
-Open the reconciliation hold and inspect the source facts before treating the held statement as reconciled.
+## Who calculates, who confirms
 
-## Verified evidence
+| The system calculates | A person confirms |
+| --- | --- |
+| Date and integer-cent validation | Whether an excluded row was really invalid |
+| Duplicate fingerprints | Whether a held duplicate is a true repeat |
+| Category from named keyword rules | Any category the rules could not assign |
+| Calculated statement closing | Why a declared closing does not match, and what to do about it |
+| Cash flow and budget variance from accepted rows | Whether the figures are fit for a decision |
 
-`data/synthetic-sample.csv` and `data/controls.json` are fixed-seed synthetic inputs. `src/engine.mjs` derives acceptance, calculations, category states, and reconciliation; tests and verification compare the committed fixture to the generator. The export is a sample audit trail, not a complete record of every original rejected row.
+The system never invents a correction.
 
-## Limitations and prohibited claims
+## Boundaries the presentation must keep visible
 
-This is a separate public illustration of selected ideas from the private Finanzas Familiares project. It does not reproduce the private application, data, multi-bank pipeline, or deployment. Accepted transaction rows may still have a category requiring review. A statement-level reconciliation HOLD does not remove its accepted rows from dashboard calculations. Historical gold intake and categorization are not claimed as finished private features.
+- **Fictional data.** Every record, label, and amount is generated from seed `20261026`. No bank, account, workbook, or private Finanzas Familiares record is connected or copied.
+- **Privacy.** No upload, no network import, local server bound to `127.0.0.1`, privacy scan in `npm run verify`.
+- **Scope.** This is a separate public illustration of control ideas from Leonel's private Finanzas Familiares project. Private-project stages (multi-bank intake, household history and reversal, historical gold intake, categorization) are not claimed as complete.
 
-## Brand Personality
+## Evidence status
 
-Calm, exact, and accountable. An exception should be impossible to miss, while accepted figures remain clearly scoped.
+- **Implemented and tested:** validation, duplicate holding, category rules, reconciliation, the review queue, and the audit-trail export. Tests use planted defects; the mutation check proves balance, duplicate, and amount defects are caught.
+- **Inferred, not claimed:** usefulness for real household data.
+- **Unsupported, never claim:** financial advice, a trained categorizer, production readiness, real users.
+
+## Leonel's contribution
+
+Leonel set the product goal and the control requirements: source-to-output traceability, explicit review states, and a control view an operations leader can read quickly. Coding agents helped implement this public demonstration. Its logic and fixtures were written for this repository.
+
+## Five-second test
+
+A reader should leave the first screen knowing: "It checks household financial records before showing totals. It flags what a person must review. The data is fictional, and I can open the demo."
+
+## Brand personality
+
+Careful, plain-spoken, domestic. A trusted friend who is good with money and checks the statement against the receipts before saying a word. Calm about the normal case, unmistakable about the exception.
 
 ## Anti-references
 
-Avoid a five-card KPI strip with equal emphasis, tiny table text, rainbow charts, a ledger that looks final despite a held statement, and finance imagery implying a real account.
+- Standard fintech: navy and gold, glossy cards, credit-card mockups, upward-arrow growth charts.
+- The former forest-green identity, which now overlaps Local AI Workcell.
+- Banking-app imitation, or anything implying a real institution or account.
+- Equal KPI strips that give a held statement the same weight as a routine total.
+- Stock photos of families, piggy banks, or coins.
 
-## Design Principles
+## Design principles
 
-1. Lead with the exception and required review action.
-2. Separate accepted transaction facts from category review and statement reconciliation.
-3. Derive displayed counts and money from the fixture, never from page copy.
-4. Keep the synthetic boundary visible beside the financial figures.
+1. **The exception leads.** A held statement outranks every routine total.
+2. **Calculated and confirmed look different.** A reader can tell at a glance who stands behind each figure.
+3. **Excluded rows stay visible.** They are struck through with a reason, never deleted from view.
+4. **The fictional boundary travels with the numbers.** It sits beside the figures, not in a footer.
 
-## Accessibility & Inclusion
+## Accessibility & inclusion
 
-Target WCAG AA, visible keyboard focus, 44px primary targets, readable 16px body text, labeled diagram and text equivalent, no color-only status, reduced motion, and no horizontal overflow from 390px through desktop widths.
+WCAG 2.2 AA in both themes. Amounts must be unambiguous: hyperlegible figures, tabular alignment, explicit sign and currency. Body text at least 16px. Status uses shape and label as well as color. Labeled diagram with text equivalent, visible focus, 44px primary targets, reduced motion, and no horizontal overflow from 390px through desktop widths.
