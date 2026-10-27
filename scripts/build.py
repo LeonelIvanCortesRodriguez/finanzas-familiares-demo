@@ -5,7 +5,7 @@ from zipfile import ZipFile, ZipInfo, ZIP_STORED
 root = Path(__file__).resolve().parent.parent
 release = root / "release"
 release.mkdir(exist_ok=True)
-excluded = {".git", "node_modules", "release", "test-results", "__pycache__"}
+excluded = {".git", "node_modules", "release", "test-results", "__pycache__", "build"}
 files = sorted((p for p in root.rglob("*") if p.is_file() and not any(part in excluded for part in p.relative_to(root).parts)), key=lambda p: p.relative_to(root).as_posix())
 inventory = "".join(f"{sha256(p.read_bytes()).hexdigest()}  {p.relative_to(root).as_posix()}\n" for p in files)
 (release / "CONTENT_INVENTORY.sha256").write_text(inventory, encoding="utf-8", newline="\n")

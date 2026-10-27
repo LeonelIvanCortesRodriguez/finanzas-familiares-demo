@@ -12,7 +12,9 @@
     "test:contrast": "node scripts/contrast-check.mjs",
     "scan:privacy": "node scripts/privacy-scan.mjs",
     "verify": "node scripts/verify.mjs && npm test && npm run test:mutation && npm run test:contrast && npm run scan:privacy",
-    "build": "python -B scripts/build.py"
+    "build": "python -B scripts/build.py",
+    "render": "node design/render.mjs"
   },
+  "devDependencies": { "playwright-core": "1.62.1" },
   "engines": { "node": ">=20", "python": ">=3.10" }
 }

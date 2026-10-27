@@ -15,6 +15,7 @@ const pairs = [
   ["on-calc", "calc", 4.5],
   ["person", "bg", 4.5], ["person", "surface", 4.5], ["person", "person-soft", 4.5],
   ["line", "bg", 3], ["line", "surface", 3],
+  ["rail-ink", "rail", 4.5],
   ["calc", "bg", 3, "focus ring"]
 ];
 

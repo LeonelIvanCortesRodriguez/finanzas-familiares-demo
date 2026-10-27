@@ -3,9 +3,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const omitted = new Set([".git", "node_modules", "release", "test-results"]);
+const omitted = new Set([".git", "node_modules", "release", "test-results", "build"]);
 const forbiddenHidden = "." + "private";
-const binary = /\.(png|jpe?g|webp|gif|ico|zip)$/i;
+const binary = /\.(png|jpe?g|webp|gif|ico|zip|woff2|mp4)$/i;
 const findings = [];
 function walk(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {

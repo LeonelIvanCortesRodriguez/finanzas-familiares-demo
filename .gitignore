@@ -4,3 +4,4 @@ test-results/
 .env*
 *.log
 __pycache__/
+design/build/

@@ -1,51 +1,105 @@
-# Finanzas Familiares Demo
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/brand/hero-dark.png">
+  <img src="docs/brand/hero-light.png" width="1280" alt="Finanzas Familiares Demo. Check every line before trusting the totals. A fictional statement strip: three rows ticked as accepted, SYN-049 struck through as a duplicate, SYN-051 circled because its category is needed, SYN-052 struck through as an invalid amount, and STATEMENT-02 held because its declared closing of MX$3,796.78 differs from the calculated MX$3,789.47 by MX$7.31. Below it: 52 source records, 49 accepted, 5 exceptions for a person, 49 rows feed the figures.">
+</picture>
 
-**[View the live fictional control desk](https://leonelivancortesrodriguez.github.io/finanzas-familiares-demo/)**
+**[Open the live demo](https://leonelivancortesrodriguez.github.io/finanzas-familiares-demo/)** · [Run it locally](#run-and-verify) · [Leonel's role](#leonels-role-and-decisions)
 
-This public demo illustrates selected control ideas from the broader private Finanzas Familiares project: visible import decisions, reconciliation, review queues, and traceable calculations. It is a separate implementation using entirely fictional data. The private project also includes multi-bank intake, household-scoped import history and reversal, and source-based verification; its systems and records are not included here. Features shown in this demo do not establish that every private-project stage has been accepted or deployed.
+A fictional household bank export, checked line by line: the demo shows which figures can be relied on and keeps every duplicate, bad row, and unbalanced statement in front of a person until it is resolved. It processes only its bundled sample. There is no upload and no connection to a bank.
 
-![Desktop dashboard showing fictional financial controls](docs/images/dashboard-desktop.png)
+## The problem
 
-## The operating problem
+A finance dashboard looks settled even when the import underneath it contains repeated rows, a malformed amount, or a statement whose closing balance doesn't match. Many tools hide those problems or quietly "fix" them, and the person reading the totals can't tell what is safe to use.
 
-A dashboard can look settled even when an import contains duplicates, malformed values, or a closing balance that does not reconcile. This demonstration keeps those exceptions visible beside the cash-flow and budget views. It shows the limit of each figure instead of silently correcting the source.
+## See one review, start to finish
 
-Leonel set the product goal and control requirements: source-to-output traceability, explicit review states, and a control view an operations leader can inspect quickly. Coding agents helped implement this separate public demonstration. Its logic and fictional fixtures were created for this repository; the private application and its records were not copied.
+<picture>
+  <source media="(prefers-reduced-motion: reduce)" srcset="docs/brand/demo-poster.png">
+  <img src="docs/brand/demo.gif" width="960" alt="Five captioned frames of the running demo: the import check with one statement held; the reconciliation table showing STATEMENT-02 calculated at MX$3,789.47 and declared at MX$3,796.78; the list of set-aside rows and the missing category; the ledger filtered to row SYN-051, which needs a person; and the section explaining what the system calculates and what a person confirms.">
+</picture>
+
+The held statement leads, its two closings sit side by side, every set-aside row keeps its reason, and the open item traces back to its source row. [MP4 version](docs/brand/demo.mp4).
+
+## How the workflow runs
+
+`source records → validation and reconciliation → exceptions → usable financial view`
+
+1. **Source records.** 52 fictional rows in two statements, generated from seed `20261026`, plus declared opening and closing balances and budget limits. These are *source facts*.
+2. **Validation and reconciliation.** [`src/engine.mjs`](src/engine.mjs) validates dates and integer cents, normalizes labels, holds exact duplicate fingerprints, applies named category rules, and calculates each statement's closing from its accepted rows.
+3. **Exceptions.** Two duplicates and one malformed amount are set aside with their reasons. One accepted row has no matching category rule. One statement's declared closing differs from the calculated closing by MX$7.31. That makes five items for a person.
+4. **Usable view.** Cash flow and budget variance are calculated from the 49 accepted rows. A statement hold questions that statement's closing balance; it does not remove the statement's accepted rows from the figures.
+
+The system never invents a correction.
+
+| The system calculates | A person confirms |
+| --- | --- |
+| Date and integer-cent validation | Whether an excluded row was really invalid |
+| Duplicate fingerprints | Whether a held duplicate is a true repeat |
+| Category from named keyword rules | Any category the rules could not assign |
+| Calculated statement closing | Why a declared closing doesn't match, and what to do about it |
+| Cash flow and budget variance from accepted rows | Whether the figures are fit for a decision |
+
+## Result and evidence
+
+| Status | What it covers | Where to check |
+| --- | --- | --- |
+| Implemented and tested | Validation, duplicate holding, category rules, reconciliation, review queue, audit-trail export | `npm test` (Node test runner with planted defects), [`tests/engine.test.mjs`](tests/engine.test.mjs) |
+| Tested by mutation | Balance, duplicate, and amount defects are each caught | `npm run test:mutation` |
+| Checked for drift | The committed sample matches the fixed-seed generator; the totals are 52, 49, 5, and 1 of 2 | `node scripts/verify.mjs` |
+| Not claimed | Use on real household data, financial advice, a trained categorizer, production readiness | No evidence in this repository |
+
+The **Export the audit trail** button downloads `sourceFacts`, `derived`, `manualReview`, and `auditTrail` as separate JSON fields. It records decisions and reasons, not every original rejected source row.
+
+## Product views
+
+<img src="docs/brand/view-held.png" width="1400" alt="Annotated capture of the held-items section: the reconciliation table with STATEMENT-02 highlighted and marked Held, and cards for the held statement, two duplicates and one invalid row struck through with their reasons, and SYN-051 circled as Category needed. Notes say the difference is not corrected, set-aside rows keep their reason, and shape and label carry each status.">
+
+<img src="docs/brand/view-flow.png" width="1400" alt="Annotated capture of the import flow: 52 source records, 49 rows accepted with 2 duplicates and 1 malformed amount set aside, 5 exceptions for a person in the terracotta column, and 49 rows feeding the usable view, with the calculated totals underneath.">
+
+<img src="docs/brand/view-mobile.png" width="930" alt="Annotated capture of the demo at 390 pixels wide: the held-statement heading, the fictional-data boundary, and the hold panel with its action come first, and nothing scrolls sideways.">
+
+## Leonel's role and decisions
+
+**Problem chosen.** Show that a household finance view can say which figures it calculated and which ones a person still has to confirm.
+
+**Role.** Leonel set the product goal and the control requirements: source-to-output traceability, explicit review states, and a control view an operations leader can read quickly. Coding agents helped implement this public demonstration. Its logic and fixtures were written for this repository; the private Finanzas Familiares application and its records were not copied.
+
+**Decisions that shape it**
+
+- *The exception leads.* A held statement outranks every routine total on the first screen.
+- *Set aside, never delete.* Excluded rows stay visible with their reason, because a person confirms exclusions too.
+- *Accepted and categorized are separate.* A row without a category rule still counts in the figures; its category waits for review.
+- *A hold questions a balance, not the rows.* Held statements keep their accepted rows in the totals.
+- *No automatic correction.* The MX$7.31 difference stays open until someone checks the source.
+
+**Constraints.** Fictional data only; no paid API, database, login, or package install to run it; the server binds to `127.0.0.1`; integer cents throughout.
+
+**Observed results.** Verify, tests, mutation, contrast, and privacy checks pass, and the build packages a deterministic release.
+
+**Technologies.** Browser JavaScript modules, HTML, CSS, the Node.js test runner, and Python for ZIP packaging. Playwright Core and FFmpeg render the README images only.
 
 ## Broader project and public boundary
 
-The private work has foundations for multi-bank intake, household-scoped source history and safe reversal, and source-based verification. Historical statement gold intake and categorization remain subject to review and acceptance gates; this demo makes no completion claim for those stages. This repository shows the *control approach* with one fixed fictional pack, not the size or deployment state of the private application.
+This is a separate public illustration of selected control ideas from Leonel's private Finanzas Familiares project. The private work includes multi-bank intake, household-scoped import history and reversal, and source-based verification; its systems and records are not included here. Historical statement gold intake and categorization remain subject to review and acceptance gates, and this demo makes no completion claim for any private-project stage.
 
-## Five-minute review
+## Limitations
 
-1. Run `npm run start` and open `http://127.0.0.1:4174`.
-2. Inspect the exception first. The fictional source has 52 rows; 49 are accepted, two duplicates and one malformed amount are excluded. One accepted row needs category review; one statement closing is held for a MX$7.31 difference.
-3. Compare **Cash flow** and **Budget** with the accepted ledger. Search a sample row, then open **Controls** to see why a source line or statement is held.
-4. Use **Export sample audit trail** to inspect `sourceFacts`, `derived`, `manualReview`, and `auditTrail` as separate JSON fields. The export records decisions and reasons but does not contain every original rejected source row.
-5. Run `npm run verify` and `npm run build` for the proof commands and deterministic release package.
+The fixed-seed sample and keyword rules demonstrate control flow, not financial advice, a trained categorizer, or production readiness. Reconciliation differences and category review need a person. The interface processes only its bundled sample and has no import surface for other files.
 
 ## Run and verify
 
-Requires Node.js 20+ and Python 3.10+ for ZIP packaging. No paid API, database, login, or package install is needed.
+Requires Node.js 20+, and Python 3.10+ for ZIP packaging.
 
 ```powershell
-npm run start
-npm run verify
-npm run build
+npm run start      # http://127.0.0.1:4174
+npm run verify     # fixture drift, tests, mutation, contrast, privacy
+npm run build      # release/finanzas-familiares-demo.zip and CONTENT_INVENTORY.sha256
 ```
 
-The sample is committed so the app works immediately. `npm run generate` recreates its CSV and controls from seed `20261026`; `node scripts/verify.mjs` checks that the committed files still match the generator. The local server binds to `127.0.0.1` only. Tests use Node's built-in test runner and intentionally planted data defects. The build writes `release/finanzas-familiares-demo.zip` and `release/CONTENT_INVENTORY.sha256`.
+The sample is committed so the app works immediately. `npm run generate` recreates its CSV and controls from seed `20261026`. To regenerate the README images, install the development dependency (`npm install`), keep `npm run start` running, and run `npm run render`; it needs Chrome or Edge and FFmpeg.
 
-## Workflow and evidence
+## Privacy, assets, and license
 
-`src/sample.mjs` generates 48 valid baseline rows, two repeated rows, one valid uncategorized row, and one malformed amount. `src/engine.mjs` validates dates and integer cents, normalizes labels, applies named category rules, holds duplicate fingerprints, and calculates each statement's closing from accepted rows. One fictional statement reconciles; the other has an intentional `7.31` difference. The dashboard does not invent a correction.
+Every record, date, label, and amount is fictional. There is no connection to a bank, household account, employer, private workbook, production database, or the private application. See [SECURITY.md](SECURITY.md).
 
-The sample uses generic labels and statement aliases. Source balances, generated CSV rows, and budget limits are marked as **source facts**. Categories, cash flow, budget variance, and calculated closings are **derived**. Validation holds, duplicates, unknown categories, and reconciliation differences remain in **manual review**. An uncategorized transaction row is financially accepted and contributes to the figures, while its *category* awaits review. A statement with a reconciliation HOLD also retains its accepted rows in calculated figures; its declared closing balance is unresolved. The JSON export includes row-level rule explanations and a sample audit trail.
-
-## Privacy and provenance
-
-Every record, date, label, and amount in this repository is fictional. There is no connection to a bank, household account, employer, private workbook, production database, OCR corpus, or the private FF application. The interface imports only its bundled synthetic sample; it has no arbitrary document upload. No third-party runtime code or external font is shipped. See [SECURITY.md](SECURITY.md) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-
-## Limits
-
-The fixed-seed dataset and keyword rules demonstrate control flow, not financial advice, a trained categorizer, or production readiness. Reconciliation differences and category review require human resolution. Leonel licenses this demonstration under MIT; see [LICENSE](LICENSE). Publication of future changes and any LinkedIn use require a separate owner decision.
+Leonel licenses this demonstration under the [MIT License](LICENSE). Atkinson Hyperlegible Next and Mono are bundled under the SIL Open Font License; see [third-party notices](THIRD_PARTY_NOTICES.md). Publication of future changes and any LinkedIn use require a separate owner decision.

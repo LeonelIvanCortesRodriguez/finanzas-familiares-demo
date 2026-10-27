@@ -3,69 +3,107 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A fictional family-finance control workflow with explainable categorization, reconciliation, and review states.">
-  <title>Finanzas Familiares Demo · Control desk</title>
-  <link rel="icon" href="data:,">
+  <meta name="description" content="A fictional household bank export, checked line by line: which figures can be relied on, and every duplicate, bad row, and unbalanced statement kept in front of a person.">
+  <title>Finanzas Familiares Demo</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23173640'/%3E%3Cpath d='M6 21h13' stroke='%23fff' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M17 18l3 3 7-10' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="preload" href="assets/fonts/AtkinsonHyperlegibleNext.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="styles.css">
   <script type="module" src="app.js"></script>
 </head>
 <body>
-  <a class="skip-link" href="#main">Skip to dashboard</a>
+  <a class="skip-link" href="#main">Skip to the import check</a>
   <div class="app-shell">
-    <aside class="rail" aria-label="Dashboard navigation">
-      <div class="brand"><span class="brand-mark">FF<span>.</span></span><div><strong>Finanzas<br>Familiares</strong><small>PUBLIC DEMO</small></div></div>
+    <aside class="rail" aria-label="Demo navigation">
+      <a class="brand" href="#overview">
+        <svg class="mark" viewBox="0 0 48 48" aria-hidden="true"><path class="mark-line" d="M6 33h22"/><path class="mark-tick" d="M24 28l6 6 12-19"/><circle class="mark-dot" cx="12" cy="20" r="4"/></svg>
+        <span class="wordmark">Finanzas Familiares <span>Demo</span></span>
+      </a>
       <nav class="rail-nav" aria-label="Sections">
-        <a href="#overview" aria-current="page"><span>01</span> Overview</a>
-        <a href="#cashflow"><span>02</span> Cash flow</a>
-        <a href="#controls"><span>03</span> Controls</a>
-        <a href="#ledger"><span>04</span> Ledger</a>
-        <a href="#evidence"><span>05</span> Evidence</a>
+        <a href="#overview" aria-current="page">The import check</a>
+        <a href="#cashflow">Cash flow and budget</a>
+        <a href="#controls">Held items</a>
+        <a href="#ledger">Accepted ledger</a>
+        <a href="#evidence">Who confirms what</a>
       </nav>
-      <div class="rail-note"><span class="signal"></span><strong>Fictional sample</strong><p>Every record is generated from a fixed seed. No account connection or file upload.</p></div>
-      <div class="rail-foot">CONTROL DESK <span>V1 / 2026</span></div>
+      <p class="rail-note"><strong>Fictional sample.</strong> Every record comes from fixed seed 20261026. No upload, no bank connection.</p>
     </aside>
 
     <main id="main">
-      <div class="utility-bar"><span>Fictional household finance / control review</span><span id="loadedState" role="status">Loading sample controls</span></div>
       <section class="hero" id="overview" aria-labelledby="hero-title">
-        <div class="hero-copy"><p class="eyebrow">Import decision / synthetic sample</p><h1 id="hero-title">Check the import before using its figures.</h1>
+        <div class="hero-copy">
+          <h1 id="hero-title">Check the import before using its figures.</h1>
           <p class="hero-intro" id="heroConclusion">Loading the fictional statement pack and its reconciliation controls.</p>
-          <div class="hero-micro-flow" id="heroMicroFlow" role="img" aria-label="Row acceptance and statement reconciliation at a glance"></div>
-          <p class="scope-note">Separate public illustration. Fictional data only; no bank connection or private-project records.</p>
+          <p class="boundary"><svg class="glyph" viewBox="0 0 20 20" aria-hidden="true"><path class="g-source" d="M4 2h8l4 4v12H4z M12 2v4h4"/></svg><span>Fictional data only. The demo processes its bundled sample; it has no upload and no connection to a bank or to the private Finanzas Familiares project.</span></p>
+          <p class="status" id="loadedState" role="status">Loading sample controls</p>
         </div>
-        <div class="hero-actions" id="heroState"><p class="action-label">Decision state</p><strong id="holdHeadline">Checking reconciliation</strong>
+        <div class="hold-panel" id="heroState">
+          <p class="hold-label"><svg class="glyph" viewBox="0 0 20 20" aria-hidden="true"><circle class="g-hold" cx="10" cy="10" r="7.5"/><circle class="g-hold-dot" cx="10" cy="10" r="2.5"/></svg>Needs a person</p>
+          <h2 id="holdHeadline">Checking reconciliation</h2>
           <p id="holdExplanation">The held statement and review action will appear after the sample loads.</p>
-          <a class="primary-button" href="#controls">Review held statement <span aria-hidden="true">→</span></a>
-          <div class="minor-actions"><button id="runImport" class="secondary-button" type="button">Re-run sample import</button><button id="exportJson" class="secondary-button" type="button" disabled>Export sample audit trail</button></div>
+          <a class="primary-button" href="#controls">Review the held statement <span aria-hidden="true">→</span></a>
+          <div class="minor-actions"><button id="runImport" class="secondary-button" type="button">Re-run sample import</button><button id="exportJson" class="secondary-button" type="button" disabled>Export the audit trail</button></div>
         </div>
       </section>
 
-      <section class="decision-flow" aria-labelledby="flow-title"><div class="section-heading"><div><h2 id="flow-title">What cleared, and what is held</h2></div><p>Counts and amounts are derived from the committed fictional inputs.</p></div>
-        <figure id="importFlow" aria-label="Fictional import disposition and statement reconciliation"><figcaption>Loading the validated import flow.</figcaption></figure>
+      <section class="flow-section" aria-labelledby="flow-title">
+        <h2 id="flow-title" class="visually-hidden">How the import was checked</h2>
+        <figure id="importFlow" class="flow" aria-label="Import check: source records, checks, exceptions, usable view"><figcaption>Loading the validated import flow.</figcaption></figure>
+        <p class="totals" id="metrics">Run the sample import to calculate the figures.</p>
       </section>
 
-      <section class="section metrics-section" aria-labelledby="metrics-title"><div class="section-heading"><div><p class="eyebrow">01 / Portfolio pulse</p><h2 id="metrics-title">What cleared the controls</h2></div><p>All figures below are calculated from accepted synthetic rows.</p></div><div class="metrics" id="metrics"><p class="empty">Run the sample import to calculate the dashboard.</p></div></section>
-
-      <section class="analysis-grid" id="cashflow" aria-label="Cash flow and budget analysis">
-        <article class="panel cash-panel"><div class="panel-head"><div><p class="eyebrow">02 / Movement</p><h2>Cash flow by month</h2></div><span class="state-pill state-derived">Derived</span></div><p class="panel-sub">Credits and debits from accepted rows, shown separately so net movement is explainable.</p><div id="cashflowBars" class="chart-area"><p class="empty">No import yet.</p></div><p class="method-note">Net = accepted credits − accepted debits. Amounts are fictional MXN.</p></article>
-        <article class="panel budget-panel"><div class="panel-head"><div><p class="eyebrow">03 / Planning</p><h2>Budget against spend</h2></div><span class="state-pill state-derived">Derived</span></div><p class="panel-sub">Three-month synthetic budget limits. Variance is budget less accepted debit spend.</p><div id="budgetBars" class="budget-list"><p class="empty">No import yet.</p></div><p class="method-note">Uncategorized spend remains visible in the ledger and review queue.</p></article>
+      <section class="section analysis-grid" id="cashflow" aria-labelledby="cash-title">
+        <article class="panel">
+          <div class="panel-head"><h2 id="cash-title">Cash flow by month</h2><span class="tag tag-derived"><svg class="glyph" viewBox="0 0 20 20" aria-hidden="true"><circle class="g-derived" cx="10" cy="10" r="7.5"/><path class="g-derived" d="M6.5 8.5h7M6.5 11.5h7"/></svg>Calculated</span></div>
+          <p class="panel-sub">Credits and debits from accepted rows, shown separately so the net is explainable.</p>
+          <div id="cashflowBars" class="chart-area"><p class="empty">No import yet.</p></div>
+          <p class="method-note">Net = accepted credits − accepted debits. Amounts are fictional MXN.</p>
+        </article>
+        <article class="panel">
+          <div class="panel-head"><h2>Budget against spend</h2><span class="tag tag-derived"><svg class="glyph" viewBox="0 0 20 20" aria-hidden="true"><circle class="g-derived" cx="10" cy="10" r="7.5"/><path class="g-derived" d="M6.5 8.5h7M6.5 11.5h7"/></svg>Calculated</span></div>
+          <p class="panel-sub">Three-month fictional budget limits against accepted debit spend.</p>
+          <div id="budgetBars" class="budget-list"><p class="empty">No import yet.</p></div>
+          <p class="method-note">Uncategorized spend stays visible in the ledger and among the held items.</p>
+        </article>
       </section>
 
-      <section class="section" id="controls" aria-labelledby="controls-title"><div class="section-heading"><div><p class="eyebrow">04 / Control queue</p><h2 id="controls-title">Reconcile, then review</h2></div><p>Source balances and derived closings never share an evidence label.</p></div>
-        <div class="control-grid"><article class="panel"><div class="panel-head"><h3>Statement reconciliation</h3><span class="state-pill state-source">Source + derived</span></div><div class="table-scroll"><table><thead><tr><th>Statement</th><th>Opening</th><th>Accepted movement</th><th>Declared close</th><th>Difference</th><th>Status</th></tr></thead><tbody id="reconRows"><tr><td colspan="6" class="empty-cell">No import yet.</td></tr></tbody></table></div><p class="method-note">On narrow screens, swipe the table to see declared close, difference, and status.</p></article>
-          <article class="panel exception-panel"><div class="panel-head"><h3>Items needing a person</h3><span class="state-pill state-review">Manual review</span></div><div id="exceptionRows" class="exceptions"><p class="empty">No import yet.</p></div></article></div>
+      <section class="section" id="controls" aria-labelledby="controls-title">
+        <div class="section-heading"><h2 id="controls-title">What the system held, and why</h2><p>Declared balances are source facts; calculated closings are derived. They never share a label.</p></div>
+        <div class="control-grid">
+          <article class="panel">
+            <div class="panel-head"><h3>Statement reconciliation</h3></div>
+            <div class="table-scroll" tabindex="0" aria-label="Statement reconciliation table"><table><thead><tr><th scope="col">Statement</th><th scope="col">Opening</th><th scope="col">Movement</th><th scope="col">Calculated close</th><th scope="col">Declared close</th><th scope="col">Difference</th><th scope="col">Status</th></tr></thead><tbody id="reconRows"><tr><td colspan="7" class="empty-cell">No import yet.</td></tr></tbody></table></div>
+            <p class="method-note">On narrow screens, scroll the table sideways to see every column.</p>
+          </article>
+          <article class="panel">
+            <div class="panel-head"><h3>Items a person must resolve</h3></div>
+            <div id="exceptionRows" class="exceptions"><p class="empty">No import yet.</p></div>
+          </article>
+        </div>
       </section>
 
-      <section class="section" id="ledger" aria-labelledby="ledger-title"><div class="section-heading"><div><p class="eyebrow">05 / Accepted source</p><h2 id="ledger-title">Trace the ledger</h2></div><p id="ledgerCount">No accepted records yet.</p></div>
-        <div class="ledger-controls"><label for="ledgerSearch">Find a sample row<input id="ledgerSearch" type="search" placeholder="ID, label, or statement" disabled></label><label for="categoryFilter">Category<select id="categoryFilter" disabled><option value="all">All categories</option></select></label><span class="control-tip">Unmatched categories still count as accepted rows. A statement HOLD flags its closing balance; it does not remove accepted rows from the figures.</span></div>
-        <div class="panel ledger-panel"><table><thead><tr><th>Source ID</th><th>Date</th><th>Fictional label</th><th>Statement</th><th>Direction</th><th>Amount</th><th>Category / basis</th></tr></thead><tbody id="ledgerRows"><tr><td colspan="7" class="empty-cell">No import yet.</td></tr></tbody></table></div>
+      <section class="section" id="ledger" aria-labelledby="ledger-title">
+        <div class="section-heading"><h2 id="ledger-title">Trace any figure to its row</h2><p id="ledgerCount">No accepted records yet.</p></div>
+        <div class="ledger-controls"><label for="ledgerSearch">Find a sample row<input id="ledgerSearch" type="search" placeholder="ID, label, or statement" disabled></label><label for="categoryFilter">Category<select id="categoryFilter" disabled><option value="all">All categories</option></select></label><p class="control-tip">A row without a matching category still counts as accepted. A statement hold flags its closing balance; it does not remove accepted rows from the figures.</p></div>
+        <div class="panel ledger-panel" tabindex="0" aria-label="Accepted ledger rows"><table><thead><tr><th scope="col">Source ID</th><th scope="col">Date</th><th scope="col">Fictional label</th><th scope="col">Statement</th><th scope="col">Direction</th><th scope="col" class="num">Amount</th><th scope="col">Category and basis</th></tr></thead><tbody id="ledgerRows"><tr><td colspan="7" class="empty-cell">No import yet.</td></tr></tbody></table></div>
       </section>
 
-      <section class="section evidence-section" id="evidence" aria-labelledby="evidence-title"><div class="section-heading"><div><p class="eyebrow">06 / Evidence boundary</p><h2 id="evidence-title">What each state means</h2></div><p>The audit packet keeps the states in separate fields.</p></div>
-        <div class="evidence-grid"><div class="evidence-card"><span class="state-pill state-source">Source</span><h3>Imported facts</h3><p>Generated CSV rows, opening and declared closing balances, budget limits, and fixture identity. These are fictional inputs, not observed household data.</p></div><div class="evidence-card"><span class="state-pill state-derived">Derived</span><h3>Recomputed results</h3><p>Normalized categories, accepted movement, monthly cash flow, budget variance, and reconciliation differences. Each has a rule or formula.</p></div><div class="evidence-card"><span class="state-pill state-review">Manual review</span><h3>Unresolved items</h3><p>Malformed rows, duplicate submissions, unknown categories, and closing differences stay visible. The demo does not invent a correction.</p></div></div>
-        <div class="audit-panel"><div><h3>Sample audit trail</h3><p>Row IDs and reason codes are included in the export. It does not carry every original rejected source row.</p></div><ol id="auditRows"><li class="empty">Run the synthetic import to see process events.</li></ol></div>
+      <section class="section" id="evidence" aria-labelledby="evidence-title">
+        <div class="section-heading"><h2 id="evidence-title">The system calculates; a person confirms</h2><p>The exported audit trail keeps source facts, derived figures, and manual review in separate fields.</p></div>
+        <div class="confirm-grid">
+          <table class="confirm-table">
+            <thead><tr><th scope="col"><span class="col-calc">The system calculates</span></th><th scope="col"><span class="col-person">A person confirms</span></th></tr></thead>
+            <tbody>
+              <tr><td>Date and integer-cent validation</td><td>Whether an excluded row was really invalid</td></tr>
+              <tr><td>Duplicate fingerprints</td><td>Whether a held duplicate is a true repeat</td></tr>
+              <tr><td>Category from named keyword rules</td><td>Any category the rules could not assign</td></tr>
+              <tr><td>Calculated statement closing</td><td>Why a declared closing does not match, and what to do about it</td></tr>
+              <tr><td>Cash flow and budget variance from accepted rows</td><td>Whether the figures are fit for a decision</td></tr>
+            </tbody>
+          </table>
+          <div class="audit-panel"><h3>Sample audit trail</h3><p>Row IDs and reason codes from the export. It records decisions, not every original rejected source row.</p><ol id="auditRows"><li class="empty">Run the sample import to see process events.</li></ol></div>
+        </div>
       </section>
-      <footer><span>Finanzas Familiares Demo · fictional data only</span><span>Local-first control example, not financial advice or a production system.</span></footer>
+      <footer><span>Finanzas Familiares Demo · fictional data only · MIT licensed</span><span>A control example, not financial advice or a production system. Atkinson Hyperlegible fonts under the SIL Open Font License.</span></footer>
     </main>
   </div>
 </body>

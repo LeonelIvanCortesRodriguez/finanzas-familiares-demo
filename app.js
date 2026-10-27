@@ -5,62 +5,63 @@ const money = (cents) => new Intl.NumberFormat("en-US", { style: "currency", cur
 const escape = (value) => String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 let current = null;
 
-function metric(label, value, note, index, tone = "") {
-  return `<article class="metric ${tone}"><div class="metric-top"><span class="metric-label">${escape(label)}</span><span class="metric-index">0${index}</span></div><div class="metric-value">${escape(value)}</div><div class="metric-note">${escape(note)}</div></article>`;
+// Status glyphs: shape carries the meaning, color repeats it (see DESIGN.md, status language).
+const glyph = {
+  accepted: '<svg class="glyph" viewBox="0 0 20 20" aria-hidden="true"><path class="g-tick" d="M4 10.5l4 4 8-9"/></svg>',
+  excluded: '<svg class="glyph" viewBox="0 0 20 20" aria-hidden="true"><path class="g-cross" d="M5 5l10 10M15 5L5 15"/></svg>',
+  review: '<svg class="glyph" viewBox="0 0 20 20" aria-hidden="true"><circle class="g-hold" cx="10" cy="10" r="7.5"/></svg>',
+  hold: '<svg class="glyph" viewBox="0 0 20 20" aria-hidden="true"><circle class="g-hold" cx="10" cy="10" r="7.5"/><circle class="g-hold-dot" cx="10" cy="10" r="2.5"/></svg>',
+  source: '<svg class="glyph" viewBox="0 0 20 20" aria-hidden="true"><path class="g-source" d="M4 2h8l4 4v12H4z M12 2v4h4"/></svg>',
+  derived: '<svg class="glyph" viewBox="0 0 20 20" aria-hidden="true"><circle class="g-derived" cx="10" cy="10" r="7.5"/><path class="g-derived" d="M6.5 8.5h7M6.5 11.5h7"/></svg>'
+};
+const tag = (kind, label) => `<span class="tag tag-${kind}">${glyph[kind]}${escape(label)}</span>`;
+const plural = (count, one, many) => `${count} ${count === 1 ? one : many}`;
+
+function counts(result) {
+  const exceptions = result.manualReview.exceptions;
+  const statements = result.derived.reconciliation;
+  return {
+    sourceRows: result.derived.metrics.sourceRows,
+    acceptedRows: result.derived.metrics.acceptedRows,
+    duplicates: exceptions.filter((item) => item.kind === "DUPLICATE").length,
+    invalid: exceptions.filter((item) => item.kind === "VALIDATION").length,
+    categoryReview: exceptions.filter((item) => item.kind === "CATEGORY").length,
+    statements: statements.length,
+    reconciled: statements.filter((item) => item.state === "PASS").length,
+    held: result.manualReview.heldStatements
+  };
+}
+
+function renderDecision(result) {
+  const c = counts(result);
+  const primaryHold = c.held[0];
+  const difference = primaryHold ? money(Math.abs(primaryHold.differenceCents)) : "";
+
+  $("#hero-title").textContent = primaryHold ? `One statement is held for ${difference}.` : "All sample statements reconcile.";
+  $("#heroConclusion").textContent = `${c.sourceRows} fictional rows checked: ${c.acceptedRows} accepted, ${plural(c.duplicates, "duplicate", "duplicates")} and ${plural(c.invalid, "invalid row", "invalid rows")} set aside. The figures below use the accepted rows, and the held statement stays in front of a person until someone resolves it.`;
+  $("#holdHeadline").textContent = primaryHold ? `${primaryHold.statementId}: the closing balance does not match` : "No statement is held";
+  $("#holdExplanation").textContent = primaryHold
+    ? `Declared and calculated closings differ by ${difference}. Check the source closing and the rows behind it before resolving the hold. The system makes no automatic correction.`
+    : "The sample statements match their calculated closings. Category and validation items are reviewed separately.";
+  $("#heroState").dataset.state = primaryHold ? "hold" : "pass";
+
+  const setAside = c.duplicates + c.invalid;
+  $("#importFlow").innerHTML = `<figcaption class="visually-hidden">Import check: ${c.sourceRows} source rows; ${c.acceptedRows} accepted and ${setAside} set aside; ${c.statements} statements checked, ${c.reconciled} reconciled and ${c.held.length} held; ${result.derived.metrics.reviewItems} items for a person; figures calculated from the accepted rows.</figcaption>
+    <ol class="flow-steps">
+      <li class="flow-step"><span class="flow-label">Source records</span><strong>${c.sourceRows}</strong><span>fictional rows in ${c.statements} statements</span>${tag("source", "Source facts")}</li>
+      <li class="flow-step"><span class="flow-label">Validation and reconciliation</span><strong>${c.acceptedRows}</strong><span>rows accepted</span>
+        <ul class="flow-detail"><li>${glyph.excluded}${plural(c.duplicates, "duplicate", "duplicates")} set aside</li><li>${glyph.excluded}${plural(c.invalid, "malformed amount", "malformed amounts")} set aside</li><li>${glyph.accepted}${c.reconciled} of ${c.statements} statements reconcile</li></ul></li>
+      <li class="flow-step flow-exceptions"><span class="flow-label">Exceptions for a person</span><strong>${result.derived.metrics.reviewItems}</strong><span>${c.held.length ? `items, including a ${escape(difference)} hold` : "items to confirm"}</span>
+        <ul class="flow-detail"><li>${glyph.hold}${plural(c.held.length, "closing balance", "closing balances")} held</li><li>${glyph.review}${plural(c.categoryReview, "category", "categories")} to assign</li><li>${glyph.excluded}${plural(setAside, "set-aside row", "set-aside rows")} to confirm</li></ul></li>
+      <li class="flow-step"><span class="flow-label">Usable financial view</span><strong>${c.acceptedRows}</strong><span>rows feed cash flow and budget</span>${tag("derived", "Calculated")}</li>
+    </ol>
+    <p class="flow-note">A statement hold questions that statement's closing balance. It does not remove its accepted rows from the calculated figures.</p>`;
 }
 
 function renderMetrics(result) {
   const m = result.derived.metrics;
   const gap = m.budgetCents - m.budgetSpentCents;
-  $("#metrics").innerHTML = [
-    metric("Net movement", money(m.netCents), "Accepted credits less accepted debits", 1),
-    metric("Rows accepted", String(m.acceptedRows), `${m.sourceRows} fictional source rows imported`, 2),
-    metric("Reconciled", `${m.reconciledStatements} / ${result.derived.reconciliation.length}`, "Declared versus calculated closing", 3, "warn"),
-    metric("Review queue", String(m.reviewItems).padStart(2, "0"), "Row issues plus held statements", 4, "danger"),
-    metric("Budget headroom", money(gap), "Six planned categories, three months", 5, gap < 0 ? "danger" : "")
-  ].join("");
-}
-
-function renderDecision(result) {
-  const { sourceRows, acceptedRows } = result.derived.metrics;
-  const exceptions = result.manualReview.exceptions;
-  const duplicates = exceptions.filter((item) => item.kind === "DUPLICATE").length;
-  const invalid = exceptions.filter((item) => item.kind === "VALIDATION").length;
-  const categoryReview = exceptions.filter((item) => item.kind === "CATEGORY").length;
-  const statements = result.derived.reconciliation;
-  const reconciled = statements.filter((item) => item.state === "PASS").length;
-  const held = result.manualReview.heldStatements;
-  const primaryHold = held[0];
-  const difference = primaryHold ? money(Math.abs(primaryHold.differenceCents)) : "";
-
-  $("#hero-title").textContent = primaryHold
-    ? `One statement is held for ${difference}.`
-    : "All sample statements reconcile.";
-  $("#heroConclusion").textContent = `${sourceRows} fictional rows → ${acceptedRows} accepted; ${duplicates} duplicates and ${invalid} invalid row excluded. Accepted rows feed the figures, including the held statement.`;
-  $("#holdHeadline").textContent = primaryHold
-    ? `${primaryHold.statementId}: closing balance needs review`
-    : "No statement reconciliation hold";
-  $("#holdExplanation").textContent = primaryHold
-    ? `${difference} separates declared and calculated closing. Check source closing and row evidence before resolving the HOLD; no automatic correction is made.`
-    : "The sample statements match their calculated closings. Review row-level category and validation items separately.";
-  $("#heroState").dataset.state = primaryHold ? "hold" : "pass";
-
-  $("#heroMicroFlow").innerHTML = `<div><span>Rows</span><strong>${sourceRows} → ${acceptedRows}</strong><small>accepted into figures</small></div>
-    <div><span>Statements</span><strong>${statements.length} → ${held.length}</strong><small>${held.length === 1 ? "closing HOLD" : "closing HOLDs"}</small></div>`;
-  $("#heroMicroFlow").setAttribute("aria-label", `${sourceRows} source rows to ${acceptedRows} accepted; ${statements.length} statements checked, ${held.length} closing holds`);
-
-  $("#importFlow").innerHTML = `<figcaption>Two control gates, ${held.length} unresolved closing ${held.length === 1 ? "balance" : "balances"}</figcaption>
-    <div class="flow-track" aria-label="Row acceptance">
-      <div class="flow-node"><strong>${sourceRows}</strong><span>source rows</span></div><span class="flow-arrow" aria-hidden="true">→</span>
-      <div class="flow-node accepted"><strong>${acceptedRows}</strong><span>accepted into figures</span></div>
-      <div class="flow-split"><span>${duplicates} duplicates excluded</span><span>${invalid} invalid excluded</span></div>
-    </div>
-    <div class="flow-track" aria-label="Statement reconciliation">
-      <div class="flow-node"><strong>${statements.length}</strong><span>statements checked</span></div><span class="flow-arrow" aria-hidden="true">→</span>
-      <div class="flow-node accepted"><strong>${reconciled}</strong><span>reconciled</span></div>
-      <div class="flow-node ${held.length ? "held" : "accepted"}"><strong>${held.length}</strong><span>${held.length ? `HOLD · ${escape(difference)}` : "held"}</span></div>
-    </div>
-    <p class="flow-note">${categoryReview} accepted row${categoryReview === 1 ? " has" : "s have"} an unresolved category. A statement HOLD is a separate balance review and does not remove its accepted rows from calculated figures.</p>`;
+  $("#metrics").innerHTML = `${glyph.accepted.replace('class="glyph"', 'class="glyph glyph-derived"')}<span>Calculated from ${m.acceptedRows} accepted rows: net movement <strong>${escape(money(m.netCents))}</strong> · budget headroom <strong>${escape(money(gap))}</strong> · <strong>${m.reconciledStatements} of ${result.derived.reconciliation.length}</strong> statements reconciled</span>`;
 }
 
 function renderCashflow(result) {
@@ -68,21 +69,35 @@ function renderCashflow(result) {
   $("#cashflowBars").innerHTML = result.derived.cashflow.map((item) => {
     const credit = Math.round(item.inflowCents / max * 100);
     const debit = Math.round(item.outflowCents / max * 100);
-    return `<div class="month-row"><span class="month-label">${escape(item.month.slice(-2))} / 26</span><div><div class="bar-track" aria-label="${escape(item.month)} inflow ${escape(money(item.inflowCents))}, outflow ${escape(money(item.outflowCents))}"><span class="bar-credit" style="width:${credit / 2}%"></span><span class="bar-debit" style="width:${debit / 2}%"></span></div></div><span class="bar-value">${escape(money(item.netCents))}</span></div>`;
-  }).join("") + `<div class="chart-legend"><span><i class="credit"></i> Inflow</span><span><i class="debit"></i> Outflow</span><span>Right: net</span></div>`;
+    return `<div class="month-row"><span class="month-label">${escape(item.month)}</span><div class="bars" role="img" aria-label="${escape(item.month)}: inflow ${escape(money(item.inflowCents))}, outflow ${escape(money(item.outflowCents))}"><span class="bar bar-credit" style="width:${credit}%"></span><span class="bar bar-debit" style="width:${debit}%"></span></div><span class="bar-value num">${escape(money(item.netCents))}</span></div>`;
+  }).join("") + `<div class="chart-legend"><span><i class="credit"></i>Inflow</span><span><i class="debit"></i>Outflow</span><span>Right column: net</span></div>`;
 }
 
 function renderBudget(result) {
   $("#budgetBars").innerHTML = result.derived.budget.map((item) => {
     const ratio = Math.min(100, Math.round(item.actualCents / item.budgetCents * 100));
-    return `<div class="budget-row"><span class="budget-name">${escape(item.category)}</span><div class="budget-track" aria-label="${escape(item.category)} spent ${escape(money(item.actualCents))} of ${escape(money(item.budgetCents))}"><div class="budget-fill ${item.state === "OVER" ? "over" : ""}" style="width:${ratio}%"></div></div><span class="budget-value"><strong>${escape(money(item.actualCents))}</strong> of ${escape(money(item.budgetCents))}</span></div>`;
+    const over = item.state === "OVER";
+    return `<div class="budget-row"><span class="budget-name">${escape(item.category)}${over ? ` ${tag("review", "Over")}` : ""}</span><div class="budget-track" role="img" aria-label="${escape(item.category)}: spent ${escape(money(item.actualCents))} of ${escape(money(item.budgetCents))}${over ? ", over budget" : ""}"><div class="budget-fill ${over ? "over" : ""}" style="width:${ratio}%"></div></div><span class="budget-value num"><strong>${escape(money(item.actualCents))}</strong> of ${escape(money(item.budgetCents))}</span></div>`;
   }).join("");
 }
 
 function renderControls(result) {
-  $("#reconRows").innerHTML = result.derived.reconciliation.map((item) => `<tr><td><strong>${escape(item.statementId)}</strong></td><td class="num">${escape(money(item.openingCents))}</td><td class="num">${escape(money(item.movementCents))}</td><td class="num">${escape(money(item.declaredClosingCents))}</td><td class="num">${escape(money(item.differenceCents))}</td><td><span class="state-pill ${item.state === "PASS" ? "state-pass" : "state-hold"}">${escape(item.state)}</span></td></tr>`).join("");
-  const exceptions = [...result.manualReview.exceptions, ...result.manualReview.heldStatements.map((item) => ({ rowId: item.statementId, kind: "RECONCILIATION", state: "HOLD", reason: `Declared close differs by ${money(item.differenceCents)}.` }))];
-  $("#exceptionRows").innerHTML = exceptions.length ? exceptions.map((item) => `<div class="exception ${item.kind === "VALIDATION" ? "invalid" : ""}"><div class="exception-top"><strong>${escape(item.rowId)} · ${escape(item.kind)}</strong><span class="state-pill ${item.state === "REVIEW" ? "state-review" : "state-invalid"}">${escape(item.state)}</span></div><p>${escape(item.reason)}</p></div>`).join("") : `<p class="empty">No manual review items.</p>`;
+  $("#reconRows").innerHTML = result.derived.reconciliation.map((item) => {
+    const status = item.state === "PASS" ? tag("accepted", "Matches") : tag("hold", "Held");
+    return `<tr class="${item.state === "HOLD" ? "row-hold" : ""}"><th scope="row">${escape(item.statementId)}</th><td class="num">${escape(money(item.openingCents))}</td><td class="num">${escape(money(item.movementCents))}</td><td class="num">${escape(money(item.calculatedClosingCents))}</td><td class="num">${escape(money(item.declaredClosingCents))}</td><td class="num">${escape(money(item.differenceCents))}</td><td>${status}</td></tr>`;
+  }).join("");
+  const held = result.manualReview.heldStatements.map((item) => ({ rowId: item.statementId, kind: "RECONCILIATION", reason: `Declared closing differs from the calculated closing by ${money(item.differenceCents)}.` }));
+  const rows = [...held, ...result.manualReview.exceptions];
+  const describe = {
+    RECONCILIATION: ["hold", "Statement held", "exception-hold"],
+    CATEGORY: ["review", "Category needed", "exception-review"],
+    DUPLICATE: ["excluded", "Set aside: duplicate", "exception-excluded"],
+    VALIDATION: ["excluded", "Set aside: invalid", "exception-excluded"]
+  };
+  $("#exceptionRows").innerHTML = rows.length ? rows.map((item) => {
+    const [kind, label, className] = describe[item.kind];
+    return `<div class="exception ${className}"><div class="exception-top"><strong class="exception-id">${escape(item.rowId)}</strong>${tag(kind, label)}</div><p>${escape(item.reason)}</p></div>`;
+  }).join("") : `<p class="empty">No manual review items.</p>`;
 }
 
 function renderLedger() {
@@ -91,17 +106,20 @@ function renderLedger() {
   const category = $("#categoryFilter").value;
   const rows = current.accepted.filter((item) => (category === "all" || item.category === category) && [item.id, item.description, item.statementId].some((value) => value.toLowerCase().includes(query)));
   $("#ledgerCount").textContent = `${rows.length} of ${current.accepted.length} accepted rows shown`;
-  $("#ledgerRows").innerHTML = rows.length ? rows.map((item) => `<tr><td data-label="Source ID"><strong>${escape(item.id)}</strong><small>Source</small></td><td data-label="Date">${escape(item.date)}</td><td data-label="Label" class="description">${escape(item.description)}</td><td data-label="Statement">${escape(item.statementId)}</td><td data-label="Direction">${escape(item.direction)}</td><td data-label="Amount" class="num">${escape(money(item.signedCents))}</td><td data-label="Category"><strong>${escape(item.category)}</strong><small>${escape(item.ruleId || "Manual review")} · ${escape(item.categoryState)}</small></td></tr>`).join("") : `<tr><td colspan="7" class="empty-cell">No rows match these filters. Clear the search or choose another category.</td></tr>`;
+  $("#ledgerRows").innerHTML = rows.length ? rows.map((item) => {
+    const needsPerson = item.categoryState === "MANUAL_REVIEW";
+    return `<tr class="${needsPerson ? "row-review" : ""}"><td data-label="Source ID"><strong>${escape(item.id)}</strong></td><td data-label="Date">${escape(item.date)}</td><td data-label="Label" class="description">${escape(item.description)}</td><td data-label="Statement">${escape(item.statementId)}</td><td data-label="Direction">${escape(item.direction)}</td><td data-label="Amount" class="num">${escape(money(item.signedCents))}</td><td data-label="Category">${needsPerson ? tag("review", "Needs a person") : `<strong>${escape(item.category)}</strong>`}<small>${escape(item.ruleId || "No rule matched")}</small></td></tr>`;
+  }).join("") : `<tr><td colspan="7" class="empty-cell">No rows match these filters. Clear the search or choose another category.</td></tr>`;
 }
 
 function renderAudit(result) {
   const selected = [...result.auditTrail.filter((event) => event.state === "HOLD" || event.state === "MANUAL_REVIEW"), ...result.auditTrail.filter((event) => event.step === "RECONCILE")].slice(0, 6);
-  $("#auditRows").innerHTML = selected.map((event) => `<li><strong>${escape(event.rowId)} · ${escape(event.step)} · ${escape(event.state)}</strong>${escape(event.basis)}</li>`).join("");
+  $("#auditRows").innerHTML = selected.map((event) => `<li><strong>${escape(event.rowId)} · ${escape(event.step)} · ${escape(event.state)}</strong><span>${escape(event.basis)}</span></li>`).join("");
 }
 
 async function runImport() {
   $("#runImport").disabled = true;
-  $("#loadedState").textContent = "Validating fictional sample…";
+  $("#loadedState").textContent = "Validating the fictional sample…";
   try {
     const [csvResponse, controlResponse] = await Promise.all([fetch("data/synthetic-sample.csv"), fetch("data/controls.json")]);
     if (!csvResponse.ok || !controlResponse.ok) throw new Error("Sample files were not found. Run npm run generate.");
@@ -112,15 +130,15 @@ async function runImport() {
     $("#categoryFilter").innerHTML = `<option value="all">All categories</option>` + categories.map((item) => `<option value="${escape(item)}">${escape(item)}</option>`).join("");
     $("#ledgerSearch").disabled = false; $("#categoryFilter").disabled = false; $("#exportJson").disabled = false;
     renderLedger();
-    $("#loadedState").textContent = `${current.derived.metrics.acceptedRows} accepted · ${current.derived.metrics.reviewItems} review items`;
+    $("#loadedState").textContent = `Checked just now: ${current.derived.metrics.acceptedRows} accepted · ${current.derived.metrics.reviewItems} items for a person`;
   } catch (error) {
     $("#loadedState").textContent = "Import stopped";
     $("#hero-title").textContent = "The fictional import could not be verified.";
-    $("#heroConclusion").textContent = escape(error.message);
+    $("#heroConclusion").textContent = error.message;
     $("#holdHeadline").textContent = "No decision available";
     $("#holdExplanation").textContent = "Restore the committed sample files, then rerun the import.";
     $("#importFlow").innerHTML = `<figcaption role="alert">Import flow unavailable: ${escape(error.message)}</figcaption>`;
-    $("#metrics").innerHTML = `<p class="empty" role="alert">${escape(error.message)}</p>`;
+    $("#metrics").innerHTML = `<span role="alert">${escape(error.message)}</span>`;
   } finally { $("#runImport").disabled = false; }
 }
 
