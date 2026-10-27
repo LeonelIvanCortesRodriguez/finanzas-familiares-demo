@@ -3,7 +3,7 @@
   <img src="docs/brand/hero-light.png" width="1280" alt="Finanzas Familiares Demo. Check every line before trusting the totals. For whoever keeps the household books; fictional data, no upload, no bank connection. A fictional statement strip: three rows ticked as accepted, SYN-049 struck through as a duplicate, SYN-051 circled because its category is needed, SYN-052 struck through as an invalid amount, and STATEMENT-02 held because its declared closing of MX$3,796.78 differs from the calculated MX$3,789.47 by MX$7.31. Below it: 52 source records, 49 accepted, 5 exceptions for a person, 49 rows feed the figures.">
 </picture>
 
-**[Open the live demo](https://leonelivancortesrodriguez.github.io/finanzas-familiares-demo/)** · [Run it locally](#run-and-verify) · [Leonel's role](#leonels-role-and-decisions)
+**[Open the live demo](https://leonelivancortesrodriguez.github.io/finanzas-familiares-demo/)** · [Run it locally](#run-and-verify) · [Leonel's role](#leonels-role-and-decisions) · [Español](README.es.md)
 
 A fictional household bank export, checked line by line: the demo shows which figures can be relied on and keeps every duplicate, bad row, and unbalanced statement in front of a person until it is resolved. It processes only its bundled sample. There is no upload and no connection to a bank.
 
@@ -80,7 +80,7 @@ The **Export the audit trail** button downloads `sourceFacts`, `derived`, `manua
 
 ## Broader project and public boundary
 
-This is a separate public illustration of selected control ideas from Leonel's private Finanzas Familiares project. The private work includes multi-bank intake, household-scoped import history and reversal, and source-based verification; its systems and records are not included here. Historical statement gold intake and categorization remain subject to review and acceptance gates, and this demo makes no completion claim for any private-project stage.
+This is a separate public illustration of selected control ideas from Leonel's private Finanzas Familiares project. The private work includes multi-bank intake, household-scoped import history and reversal, and source-based verification; its systems and records are not included here. Parts of the private project, including historical statement intake and categorization, are still under review, and this demo makes no claim that any of them is complete.
 
 ## Limitations
 
@@ -102,4 +102,4 @@ The sample is committed so the app works immediately. `npm run generate` recreat
 
 Every record, date, label, and amount is fictional. There is no connection to a bank, household account, employer, private workbook, production database, or the private application. See [SECURITY.md](SECURITY.md).
 
-Leonel licenses this demonstration under the [MIT License](LICENSE). Atkinson Hyperlegible Next and Mono are bundled under the SIL Open Font License; see [third-party notices](THIRD_PARTY_NOTICES.md). Publication of future changes and any LinkedIn use require a separate owner decision.
+Leonel licenses this demonstration under the [MIT License](LICENSE). Atkinson Hyperlegible Next and Mono are bundled under the SIL Open Font License; see [third-party notices](THIRD_PARTY_NOTICES.md).
