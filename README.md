@@ -1,6 +1,6 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/brand/hero-dark.png">
-  <img src="docs/brand/hero-light.png" width="1280" alt="Finanzas Familiares Demo. Check every line before trusting the totals. A fictional statement strip: three rows ticked as accepted, SYN-049 struck through as a duplicate, SYN-051 circled because its category is needed, SYN-052 struck through as an invalid amount, and STATEMENT-02 held because its declared closing of MX$3,796.78 differs from the calculated MX$3,789.47 by MX$7.31. Below it: 52 source records, 49 accepted, 5 exceptions for a person, 49 rows feed the figures.">
+  <img src="docs/brand/hero-light.png" width="1280" alt="Finanzas Familiares Demo. Check every line before trusting the totals. For whoever keeps the household books; fictional data, no upload, no bank connection. A fictional statement strip: three rows ticked as accepted, SYN-049 struck through as a duplicate, SYN-051 circled because its category is needed, SYN-052 struck through as an invalid amount, and STATEMENT-02 held because its declared closing of MX$3,796.78 differs from the calculated MX$3,789.47 by MX$7.31. Below it: 52 source records, 49 accepted, 5 exceptions for a person, 49 rows feed the figures.">
 </picture>
 
 **[Open the live demo](https://leonelivancortesrodriguez.github.io/finanzas-familiares-demo/)** · [Run it locally](#run-and-verify) · [Leonel's role](#leonels-role-and-decisions)
