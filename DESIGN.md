@@ -15,19 +15,20 @@ Color strategy: **restrained** in the product (two meaningful hues), **drenched*
 
 ## Color tokens
 
-OKLCH. Measured contrast in brackets.
+OKLCH. `scripts/contrast-check.mjs` reads this table and tests every named pair in both themes; `npm run test:contrast` fails on any pair below its minimum, and the retained output is `docs/CONTRAST_CHECK.txt`.
 
 | Role | Light | Dark | Meaning (stable) |
 | --- | --- | --- | --- |
 | `--bg` | `0.975 0.004 215` | `0.20 0.02 220` | Page |
 | `--surface` | `1 0 0` | `0.24 0.022 220` | Statement sheet |
-| `--ink` | `0.24 0.035 220` [15.2:1] | `0.95 0.008 215` [15.6:1] | Text and figures |
-| `--ink-2` | `0.42 0.03 220` [7.8:1] | `0.80 0.015 215` [8.8:1] | Secondary text, excluded rows |
-| `--line` | `0.66 0.02 215` [3.1:1] | `0.56 0.02 215` [3.6:1] | Rules and borders |
-| `--calc` | `0.42 0.07 205` [8.2:1] | `0.80 0.08 200` [9.0:1] | Checked or calculated by the system |
-| `--calc-soft` | `0.94 0.02 205` | `0.30 0.04 205` | Background for checked regions (calc text on it 6.9:1 / 7.4:1) |
-| `--person` | `0.48 0.13 40` [6.9:1] | `0.78 0.11 45` [7.9:1] | Needs a person: hold, review, unknown category |
-| `--person-soft` | `0.94 0.03 45` | `0.30 0.05 45` | Background for the held region (person text on it 5.8:1 / 6.7:1) |
+| `--ink` | `0.24 0.035 220` | `0.95 0.008 215` | Text and figures |
+| `--ink-2` | `0.42 0.03 220` | `0.80 0.015 215` | Secondary text, excluded rows |
+| `--line` | `0.64 0.02 215` | `0.56 0.02 215` | Rules and borders |
+| `--calc` | `0.42 0.07 205` | `0.80 0.08 200` | Checked or calculated by the system |
+| `--calc-soft` | `0.94 0.02 205` | `0.30 0.04 205` | Background for checked regions |
+| `--person` | `0.48 0.13 40` | `0.78 0.11 45` | Needs a person: hold, review, unknown category |
+| `--person-soft` | `0.94 0.03 45` | `0.30 0.05 45` | Background for the held region |
+| `--on-calc` | `1 0 0` | `0.20 0.02 220` | Text on a calc-filled button |
 
 The former forest green, amber, red, and blue are retired. Invalid rows no longer get red: an excluded row is struck through in `--ink-2` with its reason, because a person confirms exclusions too. Two hues, two meanings.
 

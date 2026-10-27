@@ -9,8 +9,9 @@
     "start": "node scripts/serve.mjs",
     "test": "node --test tests/*.test.mjs",
     "test:mutation": "node scripts/mutation-test.mjs",
+    "test:contrast": "node scripts/contrast-check.mjs",
     "scan:privacy": "node scripts/privacy-scan.mjs",
-    "verify": "node scripts/verify.mjs && npm test && npm run test:mutation && npm run scan:privacy",
+    "verify": "node scripts/verify.mjs && npm test && npm run test:mutation && npm run test:contrast && npm run scan:privacy",
     "build": "python -B scripts/build.py"
   },
   "engines": { "node": ">=20", "python": ">=3.10" }

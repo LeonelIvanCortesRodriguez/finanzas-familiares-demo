@@ -4,9 +4,17 @@
 
 product
 
+## Surface registers
+
+The default register above governs the control-desk application (`index.html`, `app.js`, `styles.css`). Work on that surface loads Impeccable's product reference (`reference/product.md`).
+
+The README hero, GitHub social preview, demonstration recordings, and any portfolio landing page are brand surfaces. Work on those loads the brand reference (`reference/brand.md`), and brand permissions (committed or drenched color, display type, art direction) apply only there. Brand surfaces still keep every claim and evidence boundary in this file.
+
 ## Product promise
 
-Turns a messy household bank export into figures you can rely on, and keeps every duplicate, bad row, and unbalanced statement in front of a person until it is resolved.
+A fictional household bank export, checked line by line: the demo shows which figures can be relied on and keeps every duplicate, bad row, and unbalanced statement in front of a person until it is resolved.
+
+The demo processes only its bundled, fixed-seed sample. It has no upload or import from real accounts, and no presentation surface may imply one.
 
 ## Users
 
