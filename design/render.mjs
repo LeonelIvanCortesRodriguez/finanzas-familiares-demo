@@ -86,7 +86,7 @@ const flowCss = `
 `;
 
 const hero = page("Finanzas Familiares hero", `${stripCss}${flowCss}
-.canvas { width: 1280px; height: 700px; padding: 38px 44px; display: grid; grid-template-columns: 560px 1fr; grid-template-rows: auto 1fr auto; gap: 18px 44px; }
+.canvas { width: 1280px; min-height: 700px; padding: 38px 44px 44px; display: grid; grid-template-columns: 560px 1fr; grid-template-rows: auto 1fr auto; gap: 18px 44px; }
 .id { grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; }
 .id .mark { width: 46px; height: 46px; color: var(--ink); }
 .id .wordmark { font-size: 27px; }
@@ -95,7 +95,7 @@ const hero = page("Finanzas Familiares hero", `${stripCss}${flowCss}
 .copy .bound { margin-top: 18px; font-size: 17px; }
 .fstrip { grid-column: 1 / -1; }
 `, `<div class="canvas"><div class="id">${mark}<span class="wordmark">Finanzas Familiares <span>Demo</span></span></div>
-<div class="copy"><h1>Check every line before trusting the totals.</h1><p>A fictional household bank export, checked line by line. Duplicates, bad rows, and an unbalanced statement stay in front of a person until someone resolves them.</p><p class="bound">Fictional data · no upload · no bank connection</p></div>
+<div class="copy"><h1>Check every line before trusting the totals.</h1><p>A fictional household bank export, checked line by line. Duplicates, bad rows, and an unbalanced statement stay in front of a person until someone resolves them.</p><p class="bound">For whoever keeps the household books. Fictional data · no upload · no bank connection</p></div>
 ${strip()}${flowStrip()}</div>`);
 
 const social = page("Finanzas Familiares social preview", `${stripCss}
@@ -161,7 +161,8 @@ await tab.close();
 
 for (const scheme of ["light", "dark"]) {
   tab = await open(path.join(build, "hero.html"), { width: 1280, height: 700, scheme, scale: 1.5 });
-  await tab.screenshot({ path: path.join(out, `hero-${scheme}.png`) });
+  // Capture the whole canvas, never a fixed viewport, so no caption can be clipped.
+  await tab.locator(".canvas").screenshot({ path: path.join(out, `hero-${scheme}.png`) });
   await tab.close();
 }
 tab = await open(path.join(build, "social.html"), { width: 1280, height: 640 });

@@ -46,6 +46,8 @@ a { color: inherit; text-underline-offset: 4px; }
 :focus-visible { outline: 3px solid var(--calc); outline-offset: 3px; }
 .skip-link { position: fixed; left: -100vw; top: 8px; z-index: 30; padding: 10px 14px; background: var(--surface); }
 .skip-link:focus { left: 8px; }
+section[tabindex="-1"]:focus { outline: none; }
+section[tabindex="-1"]:focus-visible { outline: 3px solid var(--calc); outline-offset: 6px; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .num { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
 

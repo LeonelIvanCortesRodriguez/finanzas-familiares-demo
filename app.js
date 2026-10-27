@@ -38,7 +38,7 @@ function renderDecision(result) {
   const difference = primaryHold ? money(Math.abs(primaryHold.differenceCents)) : "";
 
   $("#hero-title").textContent = primaryHold ? `One statement is held for ${difference}.` : "All sample statements reconcile.";
-  $("#heroConclusion").textContent = `${c.sourceRows} fictional rows checked: ${c.acceptedRows} accepted, ${plural(c.duplicates, "duplicate", "duplicates")} and ${plural(c.invalid, "invalid row", "invalid rows")} set aside. The figures below use the accepted rows, and the held statement stays in front of a person until someone resolves it.`;
+  $("#heroConclusion").textContent = `A fictional household bank export, ${c.sourceRows} rows checked before anyone trusts the totals: ${c.acceptedRows} accepted, ${plural(c.duplicates, "duplicate", "duplicates")} and ${plural(c.invalid, "invalid row", "invalid rows")} set aside. The figures below use the accepted rows, and the held statement stays in front of a person until someone resolves it.`;
   $("#holdHeadline").textContent = primaryHold ? `${primaryHold.statementId}: the closing balance does not match` : "No statement is held";
   $("#holdExplanation").textContent = primaryHold
     ? `Declared and calculated closings differ by ${difference}. Check the source closing and the rows behind it before resolving the hold. The system makes no automatic correction.`
